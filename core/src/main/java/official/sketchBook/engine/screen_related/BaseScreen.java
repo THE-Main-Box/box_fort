@@ -7,20 +7,22 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import official.sketchBook.engine.AppMain;
 import official.sketchBook.engine.camera_related.OrthographicCameraManager;
 
-import static official.sketchBook.game.util_related.GameConstants.Debug.show_fps_ups_metrics;
 import static official.sketchBook.game.util_related.GameConstants.Physics.FIXED_TIMESTAMP;
 import static official.sketchBook.game.util_related.GameConstants.Physics.MAX_ACCUMULATOR;
 import static official.sketchBook.game.util_related.GameConstants.Rendering.FPS_TARGET;
 
 public abstract class BaseScreen implements Screen {
 
+    /// Dimensões atuais da tela em pixels
+    protected float screenWidthInPx, screenHeightInPx;
+
     /// Controle de tempo
     private float accumulator = 0;
 
     //Métrica de desempenho
+    private float metricsTimer = 0;
     private int fps, ups;
     private int updatesCounter = 0;
-    private float metricsTimer = 0;
 
     /// Referência ao Inicializador do app
     private final AppMain app;
@@ -60,14 +62,14 @@ public abstract class BaseScreen implements Screen {
     public abstract void drawGame(SpriteBatch batch);
 
     /// Prepara para renderizar o que precisa ser renderizado do jogo
-    protected void prepareGameBatch() {
+    protected void prepareGameBatchAndRender() {
         app.gameBatch.begin();
         drawGame(app.gameBatch);
         app.gameBatch.end();
     }
 
     /// Prepara para renderizar o que precisa ser renderizado da ui
-    protected void prepareUIBatch() {
+    protected void prepareUIBatchAndRender() {
         app.uiBatch.begin();
         drawUI(app.uiBatch);
         app.uiBatch.end();
@@ -76,31 +78,41 @@ public abstract class BaseScreen implements Screen {
     /// Organiza o gameLoop de um modo funcional e granular
     @Override
     public void render(float delta) {
-        //Lida com atualização isolada separando das outras partes do gameloop
-        accumulator += Math.min(delta, MAX_ACCUMULATOR);
-        //Enquanto tivermos tempo para atualizar atualizamos
-        while (accumulator >= FIXED_TIMESTAMP) {
-            //Atualizamos tudo o que podemos
-            update(FIXED_TIMESTAMP);
-            //Diminuimos pois acabamos de atualizar
-            accumulator -= FIXED_TIMESTAMP;
-            //Atualizamos preparando para a próxima atualização
-            postUpdate();
+        //Atualiza um acumulador para lidar com um loop isolado de atualizações
+        this.accumulator += Math.min(delta, MAX_ACCUMULATOR);
 
-            updatesCounter++;
+        //Verificamos se podemos atualizar
+        while (accumulator >= FIXED_TIMESTAMP) {
+            update(FIXED_TIMESTAMP);    //Realizamos uma atualização comum
+            postUpdate();               //Atualizamos preparando para a próxima atualização
+
+            /*
+             *  OBS: A ATUALIZAÇÃO NORMAL E PÓS,
+             *  OCORRE DENTRO DA MESMA FUNÇÃO,
+             *  PORTANTO NÃO É PRECISO CONTROLAR DE MODO GRANULAR O ACUMULADOR,
+             *  POIS OS DOIS MÉTODOS DE ATUALIZAÇÃO E A PÓS ATUALIZAÇÃO IRÃO SER EXECUTADOS UM ATRÁS DO OUTRO
+             */
+            accumulator -= FIXED_TIMESTAMP; //Atualiza o valor do temporizador
+            updatesCounter++;               //Atualiza a quantidade de fps
         }
 
+        //Atualizamos a métrica
         updateMetrics(delta);
 
+        //Atualizamos o que precisa ser atualizado antes de renderizar
         updateVisuals(delta);
 
+        //Limpamos a tela
         cleanScreen();
 
-        prepareGameBatch();
-        prepareUIBatch();
+        //Preparamos para renderizar o jogo e renderizamos em seguida
+        prepareGameBatchAndRender();
+        //Preparamos para renderizar a ui e renderizamos em seguida
+        prepareUIBatchAndRender();
 
     }
 
+    /// Atualiza a contagem de fps e ups a cada segundo
     private void updateMetrics(float delta) {
         metricsTimer += delta;
 
@@ -112,16 +124,6 @@ public abstract class BaseScreen implements Screen {
         }
     }
 
-    protected OrthographicCameraManager createUICameraManager() {
-        float width = Gdx.graphics.getWidth();
-        float height = Gdx.graphics.getHeight();
-
-        OrthographicCameraManager cameraManager = new OrthographicCameraManager(width, height);
-        cameraManager.getCamera().position.set(width / 2f, height / 2f, 0);
-        cameraManager.getCamera().update();
-        return cameraManager;
-    }
-
     public int getFps() {
         return fps;
     }
@@ -130,8 +132,23 @@ public abstract class BaseScreen implements Screen {
         return ups;
     }
 
+    /**
+     * Atualiza a dimensão da camera com base na viewport
+     *
+     * @param uiCamera Camera ortográfica que iremos atualizar
+     * @param width nova largura em pixels
+     * @param height nova altura em pixels
+     */
+    protected void resizeUiCamera(OrthographicCameraManager uiCamera, int width, int height){
+        if(uiCamera == null) return;
+        uiCamera.updateViewport(width, height);
+        this.screenWidthInPx = uiCamera.getCamera().viewportWidth;
+        this.screenHeightInPx = uiCamera.getCamera().viewportHeight;
+    }
+
     @Override
     public void resize(int width, int height) {
+
     }
 
     @Override

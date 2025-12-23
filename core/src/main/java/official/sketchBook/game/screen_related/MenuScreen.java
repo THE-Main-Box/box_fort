@@ -1,14 +1,15 @@
 package official.sketchBook.game.screen_related;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import official.sketchBook.engine.AppMain;
 import official.sketchBook.engine.camera_related.OrthographicCameraManager;
+import official.sketchBook.engine.camera_related.utils.CameraUtils;
 import official.sketchBook.engine.screen_related.BaseScreen;
 
 import static official.sketchBook.game.util_related.GameConstants.Debug.show_fps_ups_metrics;
-import static official.sketchBook.game.util_related.GameConstants.World.VIRTUAL_HEIGHT_METERS;
 
 public class MenuScreen extends BaseScreen {
 
@@ -18,8 +19,10 @@ public class MenuScreen extends BaseScreen {
     public MenuScreen(AppMain app) {
         super(app);
 
-        uiCameraManager = this.createUICameraManager();
+        uiCameraManager = CameraUtils.createScreenCamera();
+
         font = new BitmapFont();
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
     @Override
@@ -39,7 +42,7 @@ public class MenuScreen extends BaseScreen {
     }
 
     @Override
-    protected void prepareGameBatch() {
+    protected void prepareGameBatchAndRender() {
         //mantemos vazia pois não iremos preparar para renderizar nada do jogo
     }
 
@@ -49,19 +52,18 @@ public class MenuScreen extends BaseScreen {
     }
 
     @Override
-    protected void prepareUIBatch() {
-        super.prepareUIBatch();
+    protected void prepareUIBatchAndRender() {
+        super.prepareUIBatchAndRender();
     }
 
     @Override
     public void drawUI(SpriteBatch batch) {
         batch.setProjectionMatrix(uiCameraManager.getCamera().combined);
 
-        if(show_fps_ups_metrics){
+        if (show_fps_ups_metrics) {
 
-            float screenHeight = Gdx.graphics.getHeight();
-            font.draw(batch, "FPS: " + getFps(), 10, screenHeight - 10);
-            font.draw(batch, "UPS: " + getUps(), 10, screenHeight - 30);
+            font.draw(batch, "FPS: " + getFps(), 10, this.screenHeightInPx - 10);
+            font.draw(batch, "UPS: " + getUps(), 10, this.screenHeightInPx - 30);
         }
     }
 
@@ -73,7 +75,7 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void resize(int width, int height) {
         super.resize(width, height);
-        uiCameraManager.updateViewport(width, height);
+        this.resizeUiCamera(uiCameraManager, width, height);
     }
 
     @Override

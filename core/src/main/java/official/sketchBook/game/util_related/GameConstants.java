@@ -26,14 +26,6 @@ public class GameConstants {
 
         /// Taxa de fps que tentaremos seguir
         public static final float FPS_TARGET = 120;
-    }
-
-    /**
-     * Classe de constantes relacionadas ao mundo, para auxiliar na gestão de dados gerais ao world
-     */
-    public static class World{
-        /// Tamanho das tiles em pixels
-        public static final int TILE_SIZE_PX = 16;
 
         /// Quantidade de tiles que podemos visualizar na largura
         public static final int TILES_VIEW_WIDTH = 20;
@@ -42,9 +34,17 @@ public class GameConstants {
         public static final int TILES_VIEW_HEIGHT = 12;
 
         /// Tamanho da largura da janela em metros
-        public static final float VIRTUAL_WIDTH_METERS = (TILE_SIZE_PX * TILES_VIEW_WIDTH) / Physics.PPM;
+        public static final float VIRTUAL_WIDTH_PX = World.TILE_SIZE_PX * TILES_VIEW_WIDTH;
         /// Tamanho da altura da janela em metros
-        public static final float VIRTUAL_HEIGHT_METERS = (TILE_SIZE_PX * TILES_VIEW_HEIGHT) / Physics.PPM;
+        public static final float VIRTUAL_HEIGHT_PX = World.TILE_SIZE_PX * TILES_VIEW_HEIGHT;
+    }
+
+    /**
+     * Classe de constantes relacionadas ao mundo, para auxiliar na gestão de dados gerais ao world
+     */
+    public static class World{
+        /// Tamanho das tiles em pixels
+        public static final int TILE_SIZE_PX = 16;
     }
 
     /**
