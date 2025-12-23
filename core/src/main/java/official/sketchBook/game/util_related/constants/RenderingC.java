@@ -4,7 +4,7 @@ import static official.sketchBook.game.util_related.constants.WorldC.TILE_SIZE_P
 
 public class RenderingC {
     /// Taxa de fps que tentaremos seguir
-    public static final float FPS_TARGET = 120;
+    public static final float FPS_TARGET = 60;
 
     /// Quantidade de tiles que podemos visualizar na largura
     public static final int TILES_VIEW_WIDTH = 20;

@@ -2,7 +2,6 @@ package official.sketchBook.engine;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import official.sketchBook.engine.camera_related.OrthographicCameraManager;
 import official.sketchBook.game.screen_related.MenuScreen;
 
 /**
@@ -13,7 +12,7 @@ public class AppMain extends Game {
     public SpriteBatch gameBatch;
     public SpriteBatch uiBatch;
 
-    //TODO: Adicionar a capacidade de realizar dispose de dados estaticos
+    //TODO: Adicionar a capacidade de realizar dispose de dados estáticos
 
     @Override
     public void create() {

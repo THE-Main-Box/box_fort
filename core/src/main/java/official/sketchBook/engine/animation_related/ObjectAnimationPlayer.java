@@ -41,7 +41,7 @@ public class ObjectAnimationPlayer {
     private final Map<String, List<AnimationFrameEvent>> frameEvents;
 
     /// Rastreia quais eventos já foram disparados nesta sessão para evitar repetições indevidas
-    private final Set<String> triggeredEvents;
+    private final BitSet triggeredFrames;
 
     @FunctionalInterface
     public interface AnimationEventCallback {
@@ -61,7 +61,7 @@ public class ObjectAnimationPlayer {
     public ObjectAnimationPlayer() {
         this.animations = new HashMap<>();
         this.frameEvents = new HashMap<>();
-        this.triggeredEvents = new HashSet<>();
+        this.triggeredFrames = new BitSet();
         this.autoUpdateAni = true;
         this.animationSpeed = 1.0;
     }
@@ -125,21 +125,21 @@ public class ObjectAnimationPlayer {
         }
 
         List<AnimationFrameEvent> events = frameEvents.get(currentAnimationKey);
-        String eventKey = currentAnimationKey + "_" + aniTick;
 
         for (AnimationFrameEvent event : events) {
-            if (event.frameIndex == aniTick && !triggeredEvents.contains(eventKey)) {
+            if (event.frameIndex == aniTick && !triggeredFrames.get(aniTick)) {
                 event.callback.onEvent(currentAnimationKey, aniTick);
-                triggeredEvents.add(eventKey);
+                triggeredFrames.set(aniTick);
             }
         }
     }
+
 
     /**
      * Limpa eventos disparados quando a animação muda ou faz loop
      */
     private void clearTriggeredEvents() {
-        triggeredEvents.clear();
+        triggeredFrames.clear();
     }
 
     /// Atualiza a animação atual baseado no tempo decorrido
@@ -155,6 +155,7 @@ public class ObjectAnimationPlayer {
         }
 
         if (elapsedTime >= (float) (frameDuration / animationSpeed)) {
+
             aniTick++;
             elapsedTime -= (float) (frameDuration / animationSpeed);
 
@@ -166,10 +167,11 @@ public class ObjectAnimationPlayer {
                     aniTick = currentAnimation.size() - 1;
                     autoUpdateAni = false;
                 }
-            } else {
-                // Verifica eventos apenas se não chegou ao fim
-                checkAndTriggerFrameEvents();
             }
+
+            // Verifica eventos apenas se não chegou ao fim
+            checkAndTriggerFrameEvents();
+
         }
     }
 
@@ -262,7 +264,7 @@ public class ObjectAnimationPlayer {
     /// Retorna o sprite do frame atual
     public Sprite getCurrentSprite() {
         if (currentAnimation == null || currentAnimation.isEmpty()) {
-            throw new IllegalStateException("Nenhuma animação está sendo tocada");
+            throw new IllegalStateException("Nenhuma animacao esta sendo tocada");
         }
         return currentAnimation.get(aniTick);
     }

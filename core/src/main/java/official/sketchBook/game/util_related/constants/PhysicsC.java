@@ -6,7 +6,7 @@ public class PhysicsC {
     public static final float PPM = 100;
 
     /// Taxa de atualização que tentamos seguir
-    public static float UPS_TARGET = 120;
+    public static float UPS_TARGET = 60;
 
     /// Faixa de tempo que o sistema de física irá tentar seguir
     public static float FIXED_TIMESTAMP = 1 / UPS_TARGET;

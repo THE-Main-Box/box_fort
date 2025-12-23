@@ -4,9 +4,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import official.sketchBook.engine.AppMain;
+import official.sketchBook.engine.animation_related.ObjectAnimationPlayer;
+import official.sketchBook.engine.animation_related.Sprite;
+import official.sketchBook.engine.animation_related.SpriteSheetDataHandler;
 import official.sketchBook.engine.camera_related.OrthographicCameraManager;
 import official.sketchBook.engine.camera_related.utils.CameraUtils;
 import official.sketchBook.engine.screen_related.BaseScreen;
+import official.sketchBook.game.util_related.path.GameAssetsPaths;
+
+import java.util.Arrays;
 
 import static official.sketchBook.game.util_related.constants.DebugC.show_fps_ups_metrics;
 
@@ -23,6 +29,7 @@ public class MenuScreen extends BaseScreen {
 
         font = new BitmapFont();
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
     }
 
     @Override
@@ -65,6 +72,7 @@ public class MenuScreen extends BaseScreen {
             font.draw(batch, "FPS: " + getFps(), 10, this.screenHeightInPx - 10);
             font.draw(batch, "UPS: " + getUps(), 10, this.screenHeightInPx - 30);
         }
+
     }
 
     @Override

@@ -17,7 +17,6 @@ public class TextureUtils {
 
         region.flip(flipX, flipY);  // Inverte horizontalmente
 
-
         return region;
     }
 
