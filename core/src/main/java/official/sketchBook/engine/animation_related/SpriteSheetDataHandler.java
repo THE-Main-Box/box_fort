@@ -271,4 +271,11 @@ public class SpriteSheetDataHandler {
         return rotation;
     }
 
+    public void setRenderHeight(float renderHeight) {
+        this.renderHeight = renderHeight;
+    }
+
+    public void setRenderWidth(float renderWidth) {
+        this.renderWidth = renderWidth;
+    }
 }

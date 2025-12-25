@@ -2,14 +2,12 @@ package official.sketchBook.engine.dataManager_related;
 
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Disposable;
+import official.sketchBook.engine.components_related.intefaces.integration_interfaces.RenderAbleObject;
 import official.sketchBook.engine.components_related.intefaces.integration_interfaces.StaticResourceDisposable;
 import official.sketchBook.engine.gameObject_related.BaseGameObject;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class BaseWorldDataManager implements Disposable {
 
@@ -19,7 +17,10 @@ public abstract class BaseWorldDataManager implements Disposable {
 
     /// Se existe um mundo foi gerado
     protected boolean physicsWorldExists;
+    /// Se o manager foi limpo
     protected boolean disposed = false;
+    /// Se as camadas de rendering precisam ter suas ordens atualizadas
+    protected boolean renderingNeedsSorting = false;
 
     /// Mundo físico para usar o box2d. Não é obrigatório
     protected World physicsWorld;
@@ -28,6 +29,10 @@ public abstract class BaseWorldDataManager implements Disposable {
     protected final List<BaseGameObject> gameObjectList = new ArrayList<>();
     /// Lista de gameObjects a serem adicionados
     protected final List<BaseGameObject> gameObjectToAddList = new ArrayList<>();
+
+    /// Lista de objects que precisam de rendering
+    protected final List<RenderAbleObject> renderAbleObjectList = new ArrayList<>();
+
     /// Rastreamento de todas as classes que passaram pelo manager
     protected final Set<Class<? extends BaseGameObject>> registeredClasses = new HashSet<>();
 
@@ -66,6 +71,11 @@ public abstract class BaseWorldDataManager implements Disposable {
 
             if (object.isPendingRemoval()) {                    //Se estiver pendente para remoção
                 gameObjectList.remove(i);                       //Remove da lista de objetos ativos
+
+                if(object instanceof RenderAbleObject){
+                    renderAbleObjectList.remove((RenderAbleObject) object);
+                }
+
                 object.destroy();                               //Executa a pipeline contendo a sequencia de destruição
                 continue;                                       //Passa pro próximo objeto
             }
@@ -130,7 +140,7 @@ public abstract class BaseWorldDataManager implements Disposable {
         gameObjectList.clear();
         gameObjectToAddList.clear();
         registeredClasses.clear();
-
+        renderAbleObjectList.clear();
     }
 
     /// Limpa o mundo físico
@@ -186,12 +196,35 @@ public abstract class BaseWorldDataManager implements Disposable {
     public void addGameObject(BaseGameObject go) {
         gameObjectToAddList.add(go);
         registeredClasses.add(go.getClass());
+
+        if(go instanceof RenderAbleObject){
+            renderAbleObjectList.add((RenderAbleObject) go);
+            renderingNeedsSorting = true;
+        }
+    }
+
+    public void sortRenderables() {
+        if (renderingNeedsSorting) {
+            // Ordenação estável para não tremer objetos no mesmo Z
+            renderAbleObjectList.sort(
+                Comparator.comparingInt(RenderAbleObject::getZIndex)
+            );
+            renderingNeedsSorting = false;
+        }
     }
 
     public void removeGameObject(BaseGameObject go) {
         if (gameObjectList.contains(go)) {
             go.markToDestroy();
         }
+    }
+
+    public void notifyRenderIndexUpdate(){
+        this.renderingNeedsSorting = true;
+    }
+
+    public List<RenderAbleObject> getRenderAbleObjectList() {
+        return renderAbleObjectList;
     }
 
     public boolean isPhysicsWorldExists() {

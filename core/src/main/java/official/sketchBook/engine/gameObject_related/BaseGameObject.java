@@ -5,6 +5,14 @@ import official.sketchBook.engine.dataManager_related.BaseWorldDataManager;
 
 public abstract class BaseGameObject implements Disposable {
 
+    /// Posições em pixel
+    protected float x, y, z;
+    /// Dimensões em pixel
+    protected float width, height;
+
+    /// Inversão de percepção do objeto em relação ao eixo
+    protected boolean xAxisInverted, yAxisInverted;
+
     /// Se deve eliminar por completo
     protected boolean pendingRemoval = false;
     protected boolean disposed = false;
@@ -38,8 +46,8 @@ public abstract class BaseGameObject implements Disposable {
     protected abstract void onObjectDestruction();
 
     /// Dispose de dados gerais
-    public final void dispose(){
-        if(disposed) return;
+    public final void dispose() {
+        if (disposed) return;
         disposeData();
         disposed = true;
     }
@@ -53,6 +61,38 @@ public abstract class BaseGameObject implements Disposable {
 
     public boolean isPendingRemoval() {
         return pendingRemoval;
+    }
+
+    public boolean isyAxisInverted() {
+        return yAxisInverted;
+    }
+
+    public boolean isxAxisInverted() {
+        return xAxisInverted;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setZ(float z) {
+        this.z = z;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getZ() {
+        return z;
     }
 
     public boolean isDisposed() {

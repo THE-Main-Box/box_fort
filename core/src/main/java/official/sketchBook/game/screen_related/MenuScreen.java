@@ -30,6 +30,7 @@ public class MenuScreen extends BaseScreen {
         this.renderSystem = new SingleThreadRenderSystem(
             this,
             null,
+            null,
             null
         );
 

@@ -10,7 +10,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import official.sketchBook.engine.AppMain;
 import official.sketchBook.engine.camera_related.OrthographicCameraManager;
 import official.sketchBook.engine.camera_related.utils.CameraUtils;
-import official.sketchBook.engine.components_related.system_utils.MultiThreadUpdateSystem;
 import official.sketchBook.engine.components_related.system_utils.SingleThreadRenderSystem;
 import official.sketchBook.engine.components_related.system_utils.SingleThreadUpdateSystem;
 import official.sketchBook.engine.screen_related.BaseScreen;
@@ -55,6 +54,7 @@ public class PlayScreen extends BaseScreen {
 
         this.renderSystem = new SingleThreadRenderSystem(
             this,
+            worldManager,
             this.app.gameBatch,
             this.app.uiBatch
         );
@@ -65,6 +65,13 @@ public class PlayScreen extends BaseScreen {
         );
 
         player = new Player(
+            100,
+            100,
+            0,
+            64,
+            64,
+            false,
+            false,
             worldManager
         );
     }
@@ -74,7 +81,6 @@ public class PlayScreen extends BaseScreen {
         if(Gdx.input.isKeyPressed(
             Input.Keys.ESCAPE
         )){
-            player.destroy();
             worldManager.destroyManager();
         }
     }
