@@ -12,7 +12,7 @@ import official.sketchBook.game.util_related.path.GameAssetsPaths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Player extends RenderableGameObject implements StaticResourceDisposable{
+public class Player extends RenderableGameObject implements StaticResourceDisposable {
 
     private static Texture playerSheet;
 
@@ -26,14 +26,16 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
         boolean yAxisInverted,
         BaseWorldDataManager worldDataManager
     ) {
-        super(worldDataManager);
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.width = width;
-        this.height = height;
-        this.xAxisInverted = xAxisInverted;
-        this.yAxisInverted = yAxisInverted;
+        super(
+            x,
+            y,
+            z,
+            width,
+            height,
+            xAxisInverted,
+            yAxisInverted,
+            worldDataManager
+        );
     }
 
     @Override
@@ -45,7 +47,7 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
         initAnimations();
     }
 
-    private void initAnimations(){
+    private void initAnimations() {
         this.animationPlayerList.add(
             new ObjectAnimationPlayer()
         );
@@ -60,21 +62,21 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
         this.animationPlayerList.get(0).playAnimation("player_idle");
     }
 
-    private void initSpriteSheet(){
-        if(playerSheet == null){
+    private void initSpriteSheet() {
+        if (playerSheet == null) {
             playerSheet = new Texture(GameAssetsPaths.EntitiesAssetsPaths.PLAYER_SHEET_PATH);
         }
 
         this.spriteHandlerList.add(
             new SpriteSheetDataHandler(
-                this.x,
-                this.y,
+                transformC.getX(),
+                transformC.getY(),
                 8,
                 0,
                 5,
                 4,
-                xAxisInverted,
-                yAxisInverted,
+                transformC.isxAxisInverted(),
+                transformC.isyAxisInverted(),
                 playerSheet
             )
         );
@@ -100,13 +102,8 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
         System.out.println("Player limpando dados de instancia");
     }
 
-    public static void disposeStaticResources(){
+    public static void disposeStaticResources() {
         System.out.println("Player limpando dados estaticos");
         playerSheet.dispose();
-    }
-
-    @Override
-    public int getZIndex() {
-        return (int) this.z;
     }
 }

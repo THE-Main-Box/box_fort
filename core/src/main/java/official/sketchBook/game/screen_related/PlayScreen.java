@@ -74,6 +74,7 @@ public class PlayScreen extends BaseScreen {
             false,
             worldManager
         );
+
     }
 
     @Override

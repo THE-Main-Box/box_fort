@@ -4,19 +4,73 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import official.sketchBook.engine.animation_related.ObjectAnimationPlayer;
 import official.sketchBook.engine.animation_related.SpriteSheetDataHandler;
 import official.sketchBook.engine.components_related.intefaces.integration_interfaces.RenderAbleObject;
+import official.sketchBook.engine.components_related.objects.TransformComponent;
 import official.sketchBook.engine.dataManager_related.BaseWorldDataManager;
 
 import java.util.List;
 
 public abstract class RenderableGameObject extends BaseGameObject implements RenderAbleObject {
 
+    protected TransformComponent transformC;
+
     protected List<SpriteSheetDataHandler> spriteHandlerList;
     protected List<ObjectAnimationPlayer> animationPlayerList;
 
     protected boolean isRenderDimensionEqualsToObject = true;
 
-    public RenderableGameObject(BaseWorldDataManager worldDataManager) {
+    public RenderableGameObject(
+        float x,
+        float y,
+        float z,
+        float width,
+        float height,
+        boolean xAxisInverted,
+        boolean yAxisInverted,
+        BaseWorldDataManager worldDataManager
+    ) {
         super(worldDataManager);
+        this.initTransformComponent(
+            x,
+            y,
+            z,
+            width,
+            height,
+            xAxisInverted,
+            yAxisInverted
+        );
+
+        initObject();
+    }
+
+    /// Inicia um novo componente de transformação
+    protected void initTransformComponent(
+        float x,
+        float y,
+        float z,
+        float width,
+        float height,
+        boolean xAxisInverted,
+        boolean yAxisInverted
+    ) {
+        this.transformC = new TransformComponent(
+            x,
+            y,
+            z,
+            width,
+            height,
+            xAxisInverted,
+            yAxisInverted
+        );
+    }
+
+    @Override
+    public void update(float delta) {
+        this.updateComponents(delta);
+    }
+
+    @Override
+    public void postUpdate() {
+        this.postUpdateComponents();
     }
 
     @Override
@@ -26,22 +80,27 @@ public abstract class RenderableGameObject extends BaseGameObject implements Ren
             ObjectAnimationPlayer currentAnimationPlayer = animationPlayerList.get(i);
 
             currentHandler.updatePosition(
-                this.x,
-                this.y
+                transformC.getX(),
+                transformC.getY()
             );
             currentHandler.setxAxisInvert(
-                this.xAxisInverted
+                transformC.isxAxisInverted()
             );
             currentHandler.setyAxisInvert(
-                this.yAxisInverted
+                transformC.isyAxisInverted()
             );
 
-            if(isRenderDimensionEqualsToObject){
-                currentHandler.setRenderHeight(height);
-                currentHandler.setRenderWidth(width);
+            if (isRenderDimensionEqualsToObject) {
+                currentHandler.setRenderWidth(
+                    transformC.getWidth()
+                );
+
+                currentHandler.setRenderHeight(
+                    transformC.getHeight()
+                );
             }
 
-            if(currentAnimationPlayer != null){
+            if (currentAnimationPlayer != null) {
                 currentAnimationPlayer.update(delta);
             }
 
@@ -54,11 +113,49 @@ public abstract class RenderableGameObject extends BaseGameObject implements Ren
         if (!spriteHandlerList.isEmpty() && !animationPlayerList.isEmpty()) {
             //renderizamos primeiro tudo o que tivermos para renderizar do objeto do jogador
             for (int i = 0; i < spriteHandlerList.size(); i++) {
-                spriteHandlerList.get(i).setxAxisInvert(xAxisInverted);
-                spriteHandlerList.get(i).renderSprite(batch,
+                SpriteSheetDataHandler currentHandler = spriteHandlerList.get(i);
+
+                currentHandler.setxAxisInvert(
+                    transformC.isxAxisInverted()
+                );
+
+                currentHandler.setyAxisInvert(
+                    transformC.isyAxisInverted()
+                );
+
+                currentHandler.renderSprite(batch,
                     animationPlayerList.get(i).getCurrentSprite()
                 );
+
             }
         }
+    }
+
+    public boolean isRenderDimensionEqualsToObject() {
+        return isRenderDimensionEqualsToObject;
+    }
+
+    public void setRenderDimensionEqualsToObject(boolean renderDimensionEqualsToObject) {
+        isRenderDimensionEqualsToObject = renderDimensionEqualsToObject;
+    }
+
+    @Override
+    public boolean isxAxisInverted() {
+        return transformC.isxAxisInverted();
+    }
+
+    @Override
+    public boolean isyAxisInverted() {
+        return transformC.isyAxisInverted();
+    }
+
+    @Override
+    public TransformComponent getTransformC() {
+        return transformC;
+    }
+
+    @Override
+    public int getZIndex() {
+        return (int) transformC.getZ();
     }
 }

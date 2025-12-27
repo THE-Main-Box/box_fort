@@ -1,17 +1,13 @@
 package official.sketchBook.engine.gameObject_related;
 
 import com.badlogic.gdx.utils.Disposable;
+import official.sketchBook.engine.components_related.intefaces.base_interfaces.Component;
 import official.sketchBook.engine.dataManager_related.BaseWorldDataManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class BaseGameObject implements Disposable {
-
-    /// Posições em pixel
-    protected float x, y, z;
-    /// Dimensões em pixel
-    protected float width, height;
-
-    /// Inversão de percepção do objeto em relação ao eixo
-    protected boolean xAxisInverted, yAxisInverted;
 
     /// Se deve eliminar por completo
     protected boolean pendingRemoval = false;
@@ -20,10 +16,15 @@ public abstract class BaseGameObject implements Disposable {
     /// Manager único do object
     protected final BaseWorldDataManager worldDataManager;
 
+    protected List<Component> toUpdateComponentList;
+    protected List<Component> toPostUpdateComponentList;
+
     public BaseGameObject(BaseWorldDataManager worldDataManager) {
         this.worldDataManager = worldDataManager;
-        this.initObject();
         this.worldDataManager.addGameObject(this);
+
+        this.toUpdateComponentList = new ArrayList<>();
+        this.toPostUpdateComponentList = new ArrayList<>();
     }
 
     /// Inicia os dados importantes antes de alocar ele no mundo
@@ -34,6 +35,18 @@ public abstract class BaseGameObject implements Disposable {
 
     /// Pós-atualização manual
     public abstract void postUpdate();
+
+    protected void updateComponents(float delta){
+        for(Component component : toUpdateComponentList){
+            component.update(delta);
+        }
+    }
+
+    protected void postUpdateComponents(){
+        for(Component component : toPostUpdateComponentList){
+            component.postUpdate();
+        }
+    }
 
     /// Sequência de destruição de objeto
     public final void destroy() {
@@ -48,8 +61,23 @@ public abstract class BaseGameObject implements Disposable {
     /// Dispose de dados gerais
     public final void dispose() {
         if (disposed) return;
+        disposeAllComponents();
         disposeData();
         disposed = true;
+    }
+
+    protected void disposeAllComponents(){
+        for(Component component : toUpdateComponentList){
+            if(component.isDisposed()) continue;
+            component.dispose();
+        }
+        for(Component component : toPostUpdateComponentList){
+            if(component.isDisposed()) continue;
+            component.dispose();
+        }
+
+        toPostUpdateComponentList.clear();
+        toUpdateComponentList.clear();
     }
 
     /// Pipeline interna para o dispose
@@ -61,38 +89,6 @@ public abstract class BaseGameObject implements Disposable {
 
     public boolean isPendingRemoval() {
         return pendingRemoval;
-    }
-
-    public boolean isyAxisInverted() {
-        return yAxisInverted;
-    }
-
-    public boolean isxAxisInverted() {
-        return xAxisInverted;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public void setZ(float z) {
-        this.z = z;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public float getZ() {
-        return z;
     }
 
     public boolean isDisposed() {
