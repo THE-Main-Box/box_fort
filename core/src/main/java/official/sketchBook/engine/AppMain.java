@@ -16,8 +16,6 @@ public class AppMain extends Game {
     private MenuScreen menuScreen;
     private PlayScreen playScreen;
 
-    //TODO: Adicionar a capacidade de realizar dispose de dados estáticos
-
     @Override
     public void create() {
         gameBatch = new SpriteBatch();

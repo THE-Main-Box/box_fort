@@ -7,6 +7,7 @@ import official.sketchBook.engine.animation_related.SpriteSheetDataHandler;
 import official.sketchBook.engine.components_related.intefaces.integration_interfaces.StaticResourceDisposable;
 import official.sketchBook.engine.dataManager_related.BaseWorldDataManager;
 import official.sketchBook.engine.gameObject_related.RenderableGameObject;
+import official.sketchBook.game.components_related.PlayerControllerComponent;
 import official.sketchBook.game.util_related.path.GameAssetsPaths;
 
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 public class Player extends RenderableGameObject implements StaticResourceDisposable {
 
     private static Texture playerSheet;
+
+    private PlayerControllerComponent controllerC;
 
     public Player(
         float x,
@@ -45,6 +48,17 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
 
         initSpriteSheet();
         initAnimations();
+        initController();
+
+        initComponents();
+    }
+
+    private void initComponents(){
+        this.toUpdateComponentList.add(controllerC);
+    }
+
+    private void initController(){
+        this.controllerC = new PlayerControllerComponent(this);
     }
 
     private void initAnimations() {
@@ -84,12 +98,12 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
 
     @Override
     public void update(float delta) {
-
+        super.update(delta);
     }
 
     @Override
     public void postUpdate() {
-
+        super.postUpdate();
     }
 
     @Override
@@ -105,5 +119,9 @@ public class Player extends RenderableGameObject implements StaticResourceDispos
     public static void disposeStaticResources() {
         System.out.println("Player limpando dados estaticos");
         playerSheet.dispose();
+    }
+
+    public PlayerControllerComponent getControllerC() {
+        return controllerC;
     }
 }
